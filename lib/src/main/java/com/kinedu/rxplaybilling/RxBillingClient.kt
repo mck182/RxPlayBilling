@@ -143,6 +143,7 @@ interface RxBillingClient {
    *
    * @param oldSkuId the sku that the user is upgrading or downgrading from
    * @param newSkuId the sku that is being upgraded or downgraded to
+   * @param purchaseToken the purchase token for the original subscription purchase
    * @param activity an activity reference from which the billing flow will be launched
    * @return a Single that emits [PurchaseResponse.Success] if the the flow was launched with
    * response code [BillingClient.BillingResponse.OK], or [PurchaseResponse.Failure] otherwise.
@@ -150,6 +151,7 @@ interface RxBillingClient {
   fun replaceSubscription(
       oldSkuId: String,
       newSkuId: String,
+      purchaseToken: String,
       activity: Activity
   ): Single<PurchaseResponse>
 }
