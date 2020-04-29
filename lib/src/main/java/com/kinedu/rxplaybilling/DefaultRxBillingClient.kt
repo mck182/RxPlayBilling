@@ -15,6 +15,7 @@ import com.kinedu.rxplaybilling.model.ConnectionResult
 import com.kinedu.rxplaybilling.model.ConsumptionResponse
 import com.kinedu.rxplaybilling.model.PurchaseResponse
 import com.kinedu.rxplaybilling.model.PurchasesUpdatedResponse
+import com.kinedu.rxplaybilling.model.QueryPurchaseHistoryResponse
 import com.kinedu.rxplaybilling.model.QueryPurchasesResponse
 import com.kinedu.rxplaybilling.model.SkuDetailsResponse
 import io.reactivex.Observable
@@ -130,27 +131,27 @@ class DefaultRxBillingClient constructor(
         }
     }
 
-    override fun queryInAppPurchaseHistory(): Single<QueryPurchasesResponse> {
+    override fun queryInAppPurchaseHistory(): Single<QueryPurchaseHistoryResponse> {
         return Single.create {
             billingClient.queryPurchaseHistoryAsync(BillingClient.SkuType.INAPP) {
                 billingResult, purchasesList ->
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    it.onSuccess(QueryPurchasesResponse.Success(purchasesList ?: listOf()))
+                    it.onSuccess(QueryPurchaseHistoryResponse.Success(purchasesList ?: listOf()))
                 } else {
-                    it.onSuccess(QueryPurchasesResponse.Failure(billingResult.responseCode))
+                    it.onSuccess(QueryPurchaseHistoryResponse.Failure(billingResult.responseCode))
                 }
             }
         }
     }
 
-    override fun querySubscriptionPurchaseHistory(): Single<QueryPurchasesResponse> {
+    override fun querySubscriptionPurchaseHistory(): Single<QueryPurchaseHistoryResponse> {
         return Single.create {
             billingClient.queryPurchaseHistoryAsync(BillingClient.SkuType.SUBS) {
                 billingResult, purchasesList ->
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    it.onSuccess(QueryPurchasesResponse.Success(purchasesList ?: listOf()))
+                    it.onSuccess(QueryPurchaseHistoryResponse.Success(purchasesList ?: listOf()))
                 } else {
-                    it.onSuccess(QueryPurchasesResponse.Failure(billingResult.responseCode))
+                    it.onSuccess(QueryPurchaseHistoryResponse.Failure(billingResult.responseCode))
                 }
 
             }

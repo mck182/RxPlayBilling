@@ -7,6 +7,7 @@ import com.kinedu.rxplaybilling.model.ConnectionResult
 import com.kinedu.rxplaybilling.model.ConsumptionResponse
 import com.kinedu.rxplaybilling.model.PurchaseResponse
 import com.kinedu.rxplaybilling.model.PurchasesUpdatedResponse
+import com.kinedu.rxplaybilling.model.QueryPurchaseHistoryResponse
 import com.kinedu.rxplaybilling.model.QueryPurchasesResponse
 import com.kinedu.rxplaybilling.model.SkuDetailsResponse
 import io.reactivex.Observable
@@ -89,13 +90,13 @@ interface RxBillingClient {
    * Returns a Single of the most recent in-app purchase made by the user for each SKU, even if
    * that purchase is expired, canceled, or consumed.
    */
-  fun queryInAppPurchaseHistory(): Single<QueryPurchasesResponse>
+  fun queryInAppPurchaseHistory(): Single<QueryPurchaseHistoryResponse>
 
   /**
    * Returns a Single of the most recent subscription purchase made by the user for each SKU,
    * even if that purchase is expired, canceled, or consumed.
    */
-  fun querySubscriptionPurchaseHistory(): Single<QueryPurchasesResponse>
+  fun querySubscriptionPurchaseHistory(): Single<QueryPurchaseHistoryResponse>
 
   /**
    * Consumes a given in-app product. Consuming can only be done on an item that's owned, and as a
