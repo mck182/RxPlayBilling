@@ -8,6 +8,7 @@ import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
+import com.android.billingclient.api.SkuDetails
 import com.android.billingclient.api.SkuDetailsParams
 import com.kinedu.rxplaybilling.model.ConnectionResult
 import com.kinedu.rxplaybilling.model.ConsumptionResponse
@@ -188,9 +189,12 @@ class DefaultRxBillingClient constructor(
 
     override fun purchaseSubscription(skuId: String, activity: Activity): Single<PurchaseResponse> {
         return Single.create {
+
+    override fun purchaseSku(skuDetails: SkuDetails, activity: Activity): Single<PurchaseResponse> {
+        return Single.create {
+
             val flowParams = BillingFlowParams.newBuilder()
-                    .setSku(skuId)
-                    .setType(BillingClient.SkuType.SUBS)
+                    .setSkuDetails(skuDetails)
                     .build()
 
             val billingResult = billingClient.launchBillingFlow(activity, flowParams)
