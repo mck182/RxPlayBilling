@@ -30,6 +30,7 @@ class DefaultRxBillingClient constructor(
         BillingClient
             .newBuilder(context)
             .setListener(this)
+            .enablePendingPurchases()
             .build()
 
     private val purchasesUpdates = PublishSubject.create<PurchasesUpdatedResponse>()
