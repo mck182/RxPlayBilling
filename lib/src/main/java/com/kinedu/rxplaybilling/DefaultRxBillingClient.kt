@@ -227,13 +227,13 @@ class DefaultRxBillingClient constructor(
     override fun replaceSubscription(
         oldSkuId: String,
         newSkuId: String,
+        purchaseToken: String,
         activity: Activity
     ): Single<PurchaseResponse> {
         return Single.create {
             val flowParams = BillingFlowParams.newBuilder()
-                    .addOldSku(oldSkuId)
-                    .setSku(newSkuId)
-                    .setType(BillingClient.SkuType.SUBS)
+                    .setOldSku(oldSkuId, purchaseToken)
+                    .setSkuDetails(SkuDetails(newSkuId)) //FIXME
                     .build()
             val billingResult = billingClient.launchBillingFlow(activity, flowParams)
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
