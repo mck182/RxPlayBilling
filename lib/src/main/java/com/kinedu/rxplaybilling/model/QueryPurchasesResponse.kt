@@ -1,11 +1,11 @@
 package com.kinedu.rxplaybilling.model
 
 import com.android.billingclient.api.BillingClient
-import com.android.billingclient.api.Purchase
+import com.android.billingclient.api.PurchaseHistoryRecord
 
 sealed class QueryPurchasesResponse {
-    data class Success(val purchaseList: List<Purchase>) : QueryPurchasesResponse()
+    data class Success(val purchaseList: List<PurchaseHistoryRecord>) : QueryPurchasesResponse()
     data class Failure(
-        @BillingClient.BillingResponse val billingResponse: Int
+        @BillingClient.BillingResponseCode val billingResponse: Int
     ) : QueryPurchasesResponse()
 }

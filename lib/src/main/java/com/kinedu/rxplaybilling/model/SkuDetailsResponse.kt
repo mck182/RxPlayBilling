@@ -6,6 +6,6 @@ import com.android.billingclient.api.SkuDetails
 sealed class SkuDetailsResponse {
     data class Success(val skuDetailsList: List<SkuDetails>) : SkuDetailsResponse()
     data class Failure(
-        @BillingClient.BillingResponse val billingResponse: Int
+        @BillingClient.BillingResponseCode val billingResponse: Int
     ) : SkuDetailsResponse()
 }
