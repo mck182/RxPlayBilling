@@ -6,6 +6,6 @@ sealed class ConnectionResult {
     object Success : ConnectionResult()
     object Disconnected : ConnectionResult()
     data class Failure(
-        @BillingClient.BillingResponse val billingResponse: Int
+        @BillingClient.BillingResponseCode val billingResponse: Int
     ) : ConnectionResult()
 }

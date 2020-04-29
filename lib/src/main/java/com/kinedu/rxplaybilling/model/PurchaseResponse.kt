@@ -4,5 +4,5 @@ import com.android.billingclient.api.BillingClient
 
 sealed class PurchaseResponse {
     object Success : PurchaseResponse()
-    data class Failure(@BillingClient.BillingResponse val billingResponse: Int) : PurchaseResponse()
+    data class Failure(@BillingClient.BillingResponseCode val billingResponse: Int) : PurchaseResponse()
 }
