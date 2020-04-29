@@ -29,6 +29,7 @@ class DefaultRxBillingClient constructor(
     private val billingClient: BillingClient =
         BillingClient
             .newBuilder(context)
+            .enablePendingPurchases()
             .setListener(this)
             .build()
 
