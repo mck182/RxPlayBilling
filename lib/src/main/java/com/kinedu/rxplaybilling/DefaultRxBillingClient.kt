@@ -5,6 +5,7 @@ import android.content.Context
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
+import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.SkuDetailsParams
@@ -35,11 +36,11 @@ class DefaultRxBillingClient constructor(
 
     private val purchasesUpdates = PublishSubject.create<PurchasesUpdatedResponse>()
 
-    override fun onPurchasesUpdated(responseCode: Int, purchases: MutableList<Purchase>?) {
-        if (responseCode == BillingClient.BillingResponse.OK) {
+    override fun onPurchasesUpdated(billingResult: BillingResult, purchases: MutableList<Purchase>?) {
+        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
             purchasesUpdates.onNext(PurchasesUpdatedResponse.Success(purchases ?: listOf()))
         } else {
-            purchasesUpdates.onNext(PurchasesUpdatedResponse.Failure(responseCode))
+            purchasesUpdates.onNext(PurchasesUpdatedResponse.Failure(billingResult.responseCode))
         }
     }
 
@@ -48,13 +49,11 @@ class DefaultRxBillingClient constructor(
     override fun connect(): Observable<ConnectionResult> {
         return Observable.create {
             billingClient.startConnection(object : BillingClientStateListener {
-                override fun onBillingSetupFinished(
-                    @BillingClient.BillingResponse responseCode: Int
-                ) {
-                    if (responseCode == BillingClient.BillingResponse.OK) {
+                override fun onBillingSetupFinished(billingResult: BillingResult) {
+                    if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                         it.onNext(ConnectionResult.Success)
                     } else {
-                        it.onNext(ConnectionResult.Failure(responseCode))
+                        it.onNext(ConnectionResult.Failure(billingResult.responseCode))
                     }
                 }
 
@@ -76,7 +75,7 @@ class DefaultRxBillingClient constructor(
     override fun queryInAppPurchases(): Single<QueryPurchasesResponse> {
         return Single.create {
             val result = billingClient.queryPurchases(BillingClient.SkuType.INAPP)
-            if (result.responseCode == BillingClient.BillingResponse.OK) {
+            if (result.billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 it.onSuccess(QueryPurchasesResponse.Success(result.purchasesList))
             } else {
                 it.onSuccess(QueryPurchasesResponse.Failure(result.responseCode))
@@ -87,7 +86,7 @@ class DefaultRxBillingClient constructor(
     override fun querySubscriptionPurchases(): Single<QueryPurchasesResponse> {
         return Single.create {
             val result = billingClient.queryPurchases(BillingClient.SkuType.SUBS)
-            if (result.responseCode == BillingClient.BillingResponse.OK) {
+            if (result.billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 it.onSuccess(QueryPurchasesResponse.Success(result.purchasesList))
             } else {
                 it.onSuccess(QueryPurchasesResponse.Failure(result.responseCode))
@@ -101,11 +100,12 @@ class DefaultRxBillingClient constructor(
                 .setSkusList(skuList)
                 .setType(BillingClient.SkuType.INAPP)
                 .build()
-            billingClient.querySkuDetailsAsync(params) { responseCode, skuDetailsList ->
-                if (responseCode == BillingClient.BillingResponse.OK) {
+
+            billingClient.querySkuDetailsAsync(params) { billingResult, skuDetailsList ->
+                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     it.onSuccess(SkuDetailsResponse.Success(skuDetailsList ?: listOf()))
                 } else {
-                    it.onSuccess(SkuDetailsResponse.Failure(responseCode))
+                    it.onSuccess(SkuDetailsResponse.Failure(billingResult.responseCode))
                 }
             }
         }
@@ -117,11 +117,12 @@ class DefaultRxBillingClient constructor(
                 .setSkusList(skuList)
                 .setType(BillingClient.SkuType.SUBS)
                 .build()
-            billingClient.querySkuDetailsAsync(params) { responseCode, skuDetailsList ->
-                if (responseCode == BillingClient.BillingResponse.OK) {
+
+            billingClient.querySkuDetailsAsync(params) { billingResult, skuDetailsList ->
+                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     it.onSuccess(SkuDetailsResponse.Success(skuDetailsList ?: listOf()))
                 } else {
-                    it.onSuccess(SkuDetailsResponse.Failure(responseCode))
+                    it.onSuccess(SkuDetailsResponse.Failure(billingResult.responseCode))
                 }
             }
         }
@@ -130,11 +131,11 @@ class DefaultRxBillingClient constructor(
     override fun queryInAppPurchaseHistory(): Single<QueryPurchasesResponse> {
         return Single.create {
             billingClient.queryPurchaseHistoryAsync(BillingClient.SkuType.INAPP) {
-                responseCode, purchasesList ->
-                if (responseCode == BillingClient.BillingResponse.OK) {
+                billingResult, purchasesList ->
+                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     it.onSuccess(QueryPurchasesResponse.Success(purchasesList ?: listOf()))
                 } else {
-                    it.onSuccess(QueryPurchasesResponse.Failure(responseCode))
+                    it.onSuccess(QueryPurchasesResponse.Failure(billingResult.responseCode))
                 }
             }
         }
@@ -143,11 +144,11 @@ class DefaultRxBillingClient constructor(
     override fun querySubscriptionPurchaseHistory(): Single<QueryPurchasesResponse> {
         return Single.create {
             billingClient.queryPurchaseHistoryAsync(BillingClient.SkuType.SUBS) {
-                responseCode, purchasesList ->
-                if (responseCode == BillingClient.BillingResponse.OK) {
+                billingResult, purchasesList ->
+                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     it.onSuccess(QueryPurchasesResponse.Success(purchasesList ?: listOf()))
                 } else {
-                    it.onSuccess(QueryPurchasesResponse.Failure(responseCode))
+                    it.onSuccess(QueryPurchasesResponse.Failure(billingResult.responseCode))
                 }
 
             }
@@ -157,10 +158,11 @@ class DefaultRxBillingClient constructor(
     override fun consumeItem(purchaseToken: String): Single<ConsumptionResponse> {
         return Single.create {
             billingClient.consumeAsync(purchaseToken) { responseCode, outToken ->
-                if (responseCode == BillingClient.BillingResponse.OK) {
+            billingClient.consumeAsync(consumeParams) { billingResult, outToken ->
+                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     it.onSuccess(ConsumptionResponse.Success(outToken))
                 } else {
-                    it.onSuccess(ConsumptionResponse.Failure(responseCode))
+                    it.onSuccess(ConsumptionResponse.Failure(billingResult.responseCode))
                 }
             }
         }
@@ -187,11 +189,12 @@ class DefaultRxBillingClient constructor(
                     .setSku(skuId)
                     .setType(BillingClient.SkuType.SUBS)
                     .build()
-            val responseCode = billingClient.launchBillingFlow(activity, flowParams)
-            if (responseCode == BillingClient.BillingResponse.OK) {
+
+            val billingResult = billingClient.launchBillingFlow(activity, flowParams)
+            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 it.onSuccess(PurchaseResponse.Success)
             } else {
-                it.onSuccess(PurchaseResponse.Failure(responseCode))
+                it.onSuccess(PurchaseResponse.Failure(billingResult.responseCode))
             }
         }
     }
@@ -207,11 +210,11 @@ class DefaultRxBillingClient constructor(
                     .setSku(newSkuId)
                     .setType(BillingClient.SkuType.SUBS)
                     .build()
-            val responseCode = billingClient.launchBillingFlow(activity, flowParams)
-            if (responseCode == BillingClient.BillingResponse.OK) {
+            val billingResult = billingClient.launchBillingFlow(activity, flowParams)
+            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 it.onSuccess(PurchaseResponse.Success)
             } else {
-                it.onSuccess(PurchaseResponse.Failure(responseCode))
+                it.onSuccess(PurchaseResponse.Failure(billingResult.responseCode))
             }
         }
     }
