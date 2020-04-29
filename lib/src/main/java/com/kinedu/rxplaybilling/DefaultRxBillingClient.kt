@@ -157,7 +157,10 @@ class DefaultRxBillingClient constructor(
 
     override fun consumeItem(purchaseToken: String): Single<ConsumptionResponse> {
         return Single.create {
-            billingClient.consumeAsync(purchaseToken) { responseCode, outToken ->
+            val consumeParams = ConsumeParams.newBuilder()
+                    .setPurchaseToken(purchaseToken)
+                    .build()
+
             billingClient.consumeAsync(consumeParams) { billingResult, outToken ->
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     it.onSuccess(ConsumptionResponse.Success(outToken))
