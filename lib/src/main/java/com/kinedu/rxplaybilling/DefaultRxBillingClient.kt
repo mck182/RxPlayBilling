@@ -174,21 +174,37 @@ class DefaultRxBillingClient constructor(
 
     override fun purchaseItem(skuId: String, activity: Activity): Single<PurchaseResponse> {
         return Single.create {
-            val flowParams = BillingFlowParams.newBuilder()
-                .setSku(skuId)
-                .setType(BillingClient.SkuType.INAPP)
-                .build()
-            val responseCode = billingClient.launchBillingFlow(activity, flowParams)
-            if (responseCode == BillingClient.BillingResponse.OK) {
-                it.onSuccess(PurchaseResponse.Success)
-            } else {
-                it.onSuccess(PurchaseResponse.Failure(responseCode))
-            }
+            queryInAppSkuDetails(listOf(skuId))
+                    .flatMap { skuDetailsResponse: SkuDetailsResponse ->
+                        if (skuDetailsResponse is SkuDetailsResponse.Success) {
+                            if (skuDetailsResponse.skuDetailsList.isEmpty()) {
+                                throw Throwable("Sku $skuId doesn't exist!")
+                            } else {
+                                return@flatMap purchaseSku(skuDetailsResponse.skuDetailsList.first(), activity)
+                            }
+                        } else {
+                            throw Throwable("Failed to query Play Store for $skuId details")
+                        }
+                    }
         }
     }
 
     override fun purchaseSubscription(skuId: String, activity: Activity): Single<PurchaseResponse> {
         return Single.create {
+            queryInAppSkuDetails(listOf(skuId))
+                    .flatMap { skuDetailsResponse: SkuDetailsResponse ->
+                        if (skuDetailsResponse is SkuDetailsResponse.Success) {
+                            if (skuDetailsResponse.skuDetailsList.isEmpty()) {
+                                throw Throwable("Sku $skuId doesn't exist!")
+                            } else {
+                                return@flatMap purchaseSku(skuDetailsResponse.skuDetailsList.first(), activity)
+                            }
+                        } else {
+                            throw Throwable("Failed to query Play Store for $skuId details")
+                        }
+                    }
+        }
+    }
 
     override fun purchaseSku(skuDetails: SkuDetails, activity: Activity): Single<PurchaseResponse> {
         return Single.create {
