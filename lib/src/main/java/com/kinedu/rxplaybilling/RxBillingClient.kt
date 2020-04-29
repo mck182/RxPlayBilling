@@ -2,6 +2,7 @@ package com.kinedu.rxplaybilling
 
 import android.app.Activity
 import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.SkuDetails
 import com.kinedu.rxplaybilling.model.ConnectionResult
 import com.kinedu.rxplaybilling.model.ConsumptionResponse
 import com.kinedu.rxplaybilling.model.PurchaseResponse
@@ -125,6 +126,17 @@ interface RxBillingClient {
    * response code [BillingClient.BillingResponse.OK], or [PurchaseResponse.Failure] otherwise.
    */
   fun purchaseSubscription(skuId: String, activity: Activity): Single<PurchaseResponse>
+
+  /**
+   * Initiates the billing flow for the given SkuDetails object
+   * (retrieved from querySkuDetailsAsync())
+   *
+   * @param skuDetails the sku details object that is being purchased
+   * @param activity an activity reference from which the billing flow will be launched
+   * @return a Single that emits [PurchaseResponse.Success] if the the flow was launched with
+   * response code [BillingClient.BillingResponse.OK], or [PurchaseResponse.Failure] otherwise.
+   */
+  fun purchaseSku(skuDetails: SkuDetails, activity: Activity): Single<PurchaseResponse>
 
   /**
    * Initiates the billing flow for a subscription upgrade/downgrade.
