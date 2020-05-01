@@ -193,7 +193,7 @@ class DefaultRxBillingClient constructor(
 
     override fun purchaseSubscription(skuId: String, activity: Activity): Single<PurchaseResponse> {
         return Single.create {
-            queryInAppSkuDetails(listOf(skuId))
+            querySubscriptionsSkuDetails(listOf(skuId))
                     .flatMap { skuDetailsResponse: SkuDetailsResponse ->
                         if (skuDetailsResponse is SkuDetailsResponse.Success) {
                             if (skuDetailsResponse.skuDetailsList.isEmpty()) {
