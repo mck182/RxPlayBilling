@@ -210,7 +210,6 @@ class DefaultRxBillingClient constructor(
 
     override fun purchaseSku(skuDetails: SkuDetails, activity: Activity): Single<PurchaseResponse> {
         return Single.create {
-
             val flowParams = BillingFlowParams.newBuilder()
                     .setSkuDetails(skuDetails)
                     .build()
